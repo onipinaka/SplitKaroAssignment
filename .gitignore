@@ -1,0 +1,81 @@
+# ---------------------------
+# Node
+# ---------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ---------------------------
+# Logs
+# ---------------------------
+logs/
+*.log
+logs/**/*.log
+
+# ---------------------------
+# Environment files
+# ---------------------------
+.env
+.env.*
+!.env.example  # keep example env
+
+# ---------------------------
+# Build outputs
+# ---------------------------
+dist/
+build/
+out/
+
+# ---------------------------
+# Vite / Temp files
+# ---------------------------
+*.local
+*.cache
+.cache/
+vite.config.timestamp-*
+vite.svg
+
+# ---------------------------
+# System files
+# ---------------------------
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ---------------------------
+# Coverage / Testing
+# ---------------------------
+coverage/
+*.lcov
+
+# ---------------------------
+# Backend specific
+# ---------------------------
+backend/node_modules/
+backend/dist/
+backend/logs/
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# ---------------------------
+# Frontend specific
+# ---------------------------
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# ---------------------------
+# Optional
+# ---------------------------
+*.pid
+*.seed
+*.backup
+*.tgz
