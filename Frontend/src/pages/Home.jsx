@@ -1,5 +1,6 @@
 import React from 'react'
 import ExpenseForm from '../sections/ExpenseForm'
+import QueryBox from '../sections/QueryBox'
 
 function Home() {
   return (
@@ -7,7 +8,7 @@ function Home() {
         <p>SplitKaro</p>
         <div>
             <ExpenseForm/>
-            
+            <QueryBox/>
         </div>
     </div>
   )
