@@ -1,18 +1,20 @@
 import React, { useState } from "react";
 
-function QueryBox({ onResult }) {
+function QueryBox() {
     const [queryLocalText, setQueryLocalText] = useState("");
     const [queryGeminiText, setQueryGeminiText] = useState("");
     const [busy, setBusy] = useState(false);
+    const [result, setResult] = useState(null);
 
     const doLocal = async () => {
-        if (!queryLocalText){
+        if (!queryLocalText.trim()) {
             return alert("Enter a query");
         }
         setBusy(true);
+        setResult(null);
         try {
             const res = await queryLocal(queryLocalText);
-            onResult(res);
+            setResult(res);
         } catch (err) {
             console.error(err);
             alert(err || "Local parse failed");
@@ -22,13 +24,14 @@ function QueryBox({ onResult }) {
     };
 
     const doGemini = async () => {
-        if (!queryGeminiText){
-             return alert("Enter a query for Gemini");
+        if (!queryGeminiText.trim()) {
+            return alert("Enter a query for Gemini");
         }
         setBusy(true);
+        setResult(null);
         try {
             const res = await queryGemini(queryGeminiText);
-            onResult(res);
+            setResult(res);
         } catch (err) {
             console.error(err);
             alert(err.response?.data?.message || "Gemini parse failed");
@@ -76,6 +79,17 @@ function QueryBox({ onResult }) {
                     </button>
                 </div>
             </div>
+
+            <p>result here</p>
+
+            {result && (
+                <div className="mt-4 bg-gray-100 p-3 rounded border-2 border-black border-solid">
+                    <p className="font-medium mb-2">Result</p>
+                    <p className="text-xs whitespace-pre-wrap">
+                        {JSON.stringify(result, null, 2)}
+                    </p>
+                </div>
+            )}
         </div>
     );
 }

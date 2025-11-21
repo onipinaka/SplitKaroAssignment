@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-function ExpenseForm({onAdded}) {
+function ExpenseForm() {
 
     const [amount,setAmount] = useState("")
     const [category,setCategory] = useState("grocery")
@@ -25,7 +25,6 @@ function ExpenseForm({onAdded}) {
             setDescription("")
             setCategory("grocery")
 
-            onAdded()
 
         } catch (error) {
             console.error(error);
