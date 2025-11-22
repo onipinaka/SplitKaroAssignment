@@ -1,6 +1,20 @@
 import React, { useState } from "react";
 import { queryLocal } from "../api/api";
 
+// Format date to local date string (avoids timezone issues)
+function formatLocalDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleString('en-IN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+    });
+}
+
 // Display query results with metadata and expense list
 function ResultBox({ result }) {
     if (!result) return null;
@@ -17,10 +31,10 @@ function ResultBox({ result }) {
                     <p><b>Category:</b> {meta.category}</p>
                 )}
                 {meta.from && (
-                    <p><b>From:</b> {new Date(meta.from).toLocaleString()}</p>
+                    <p><b>From:</b> {formatLocalDate(meta.from)}</p>
                 )}
                 {meta.to && (
-                    <p><b>To:</b> {new Date(meta.to).toLocaleString()}</p>
+                    <p><b>To:</b> {formatLocalDate(meta.to)}</p>
                 )}
                 {meta.totalEntries !== undefined && (
                     <p><b>Total Entries:</b> {meta.totalEntries}</p>
@@ -45,7 +59,7 @@ function ResultBox({ result }) {
                             <td className="p-2 border">₹ {e.amount}</td>
                             <td className="p-2 border">{e.category}</td>
                             <td className="p-2 border">
-                                {new Date(e.datetime).toLocaleString()}
+                                {formatLocalDate(e.datetime)}
                             </td>
                             <td className="p-2 border">{e.description}</td>
                         </tr>
