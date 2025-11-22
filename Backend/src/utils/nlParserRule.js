@@ -59,6 +59,27 @@ export function detectCategory(query) {
 function parseCustomRanges(query, refDate) {
   const lower = query.toLowerCase();
   
+  // "today"
+  if (lower.includes('today')) {
+    const start = new Date(refDate.getFullYear(), refDate.getMonth(), refDate.getDate(), 0, 0, 0, 0);
+    const end = new Date(refDate.getFullYear(), refDate.getMonth(), refDate.getDate(), 23, 59, 59, 999);
+    return { from: start, to: end };
+  }
+
+  // "yesterday"
+  if (lower.includes('yesterday')) {
+    const start = new Date(refDate.getFullYear(), refDate.getMonth(), refDate.getDate() - 1, 0, 0, 0, 0);
+    const end = new Date(refDate.getFullYear(), refDate.getMonth(), refDate.getDate() - 1, 23, 59, 59, 999);
+    return { from: start, to: end };
+  }
+
+  // "tomorrow"
+  if (lower.includes('tomorrow')) {
+    const start = new Date(refDate.getFullYear(), refDate.getMonth(), refDate.getDate() + 1, 0, 0, 0, 0);
+    const end = new Date(refDate.getFullYear(), refDate.getMonth(), refDate.getDate() + 1, 23, 59, 59, 999);
+    return { from: start, to: end };
+  }
+  
   // "last 7 days" or "past 7 days"
   const daysMatch = lower.match(/(?:last|past)\s+(\d+)\s+days?/);
   if (daysMatch) {
@@ -133,7 +154,7 @@ export function parseQueryLocal(query, referenceDate = new Date()) {
   // Get category
   result.category = detectCategory(query);
 
-  // Try custom range patterns first
+  // Try custom range patterns first (handles timezone correctly)
   const customRange = parseCustomRanges(query, referenceDate);
   if (customRange) {
     result.from = customRange.from;
@@ -141,28 +162,47 @@ export function parseQueryLocal(query, referenceDate = new Date()) {
     return result;
   }
 
-  // Use chrono for other date phrases
+  // Use chrono for other date phrases (like "last Saturday", specific dates)
   const parsed = chrono.parse(query, referenceDate);
 
   if (parsed.length > 0) {
     const match = parsed[0];
 
     if (match.start) {
-      result.from = match.start.date();
+      const startParsed = match.start.date();
+      // Normalize to midnight in local timezone
+      result.from = new Date(
+        startParsed.getFullYear(), 
+        startParsed.getMonth(), 
+        startParsed.getDate(), 
+        0, 0, 0, 0
+      );
     }
 
     if (match.end) {
-      result.to = match.end.date();
+      const endParsed = match.end.date();
+      // Normalize to end of day in local timezone
+      result.to = new Date(
+        endParsed.getFullYear(), 
+        endParsed.getMonth(), 
+        endParsed.getDate(), 
+        23, 59, 59, 999
+      );
     } else if (match.start) {
-      // Single date: make it full day
-      const start = new Date(result.from);
-      result.from = new Date(start.getFullYear(), start.getMonth(), start.getDate(), 0, 0, 0, 0);
-      result.to = new Date(start.getFullYear(), start.getMonth(), start.getDate(), 23, 59, 59, 999);
+      // Single date: expand to full day in local timezone
+      const startParsed = match.start.date();
+      result.to = new Date(
+        startParsed.getFullYear(), 
+        startParsed.getMonth(), 
+        startParsed.getDate(), 
+        23, 59, 59, 999
+      );
     }
   }
 
   return result;
 }
+
 
 
 
