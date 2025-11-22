@@ -2,7 +2,6 @@ import express from "express";
 import asyncHandler from "../middleware/asyncHandler.js";
 import Expense from "../models/expense.model.js";
 import { parseQueryLocal } from "../utils/nlParserRule.js";
-import { parseWithGemini } from "../utils/nlParserGemini.js";
 
 const router = express.Router();
 
@@ -34,41 +33,6 @@ router.post(
     res.json({
       success: true,
       meta: { category, from, to, totalEntries: entries.length, total },
-      data: entries
-    });
-  })
-);
-
-router.post(
-  "/gemini",
-  asyncHandler(async (req, res) => {
-    const { query } = req.body;
-    if (!query)
-      return res.status(400).json({ success: false, message: "query required" });
-
-    const { category, keyword, from, to } = await parseWithGemini(query);
-
-    const filter = {};
-
-    const searchKey = keyword || category;
-
-    if (searchKey) {
-      filter.$or = [
-        { description: new RegExp(searchKey, "i") },  
-        { category: new RegExp(searchKey, "i") }      
-      ];
-    }
-
-    if (from || to) filter.datetime = {};
-    if (from) filter.datetime.$gte = from;
-    if (to) filter.datetime.$lte = to;
-
-    const entries = await Expense.find(filter).sort({ datetime: -1 });
-    const total = entries.reduce((sum, e) => sum + e.amount, 0);
-
-    res.json({
-      success: true,
-      meta: { source: "gemini", category, keyword, from, to, totalEntries: entries.length, total },
       data: entries
     });
   })

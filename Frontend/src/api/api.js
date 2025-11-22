@@ -5,4 +5,3 @@ export const addExpense = (payload) => axios.post(`${BASE}/api/expenses`, payloa
 export const fetchExpenses = (params) => axios.get(`${BASE}/api/expenses`, { params }).then(r => r.data);
 
 export const queryLocal = (query) => axios.post(`${BASE}/api/query/local`, { query }).then(r => r.data);
-export const queryGemini = (query) => axios.post(`${BASE}/api/query/gemini`, { query }).then(r => r.data);
