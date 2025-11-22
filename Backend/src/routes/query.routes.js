@@ -27,9 +27,34 @@ router.post(
       ];
     }
 
+    // MongoDB stores dates in UTC, so we need to convert local dates to UTC for querying
     if (from || to) filter.datetime = {};
-    if (from) filter.datetime.$gte = from;
-    if (to) filter.datetime.$lte = to;
+    if (from) {
+      // Create UTC date from local date components
+      const utcFrom = new Date(Date.UTC(
+        from.getFullYear(),
+        from.getMonth(),
+        from.getDate(),
+        from.getHours(),
+        from.getMinutes(),
+        from.getSeconds(),
+        from.getMilliseconds()
+      ));
+      filter.datetime.$gte = utcFrom;
+    }
+    if (to) {
+      // Create UTC date from local date components
+      const utcTo = new Date(Date.UTC(
+        to.getFullYear(),
+        to.getMonth(),
+        to.getDate(),
+        to.getHours(),
+        to.getMinutes(),
+        to.getSeconds(),
+        to.getMilliseconds()
+      ));
+      filter.datetime.$lte = utcTo;
+    }
 
     const entries = await Expense.find(filter).sort({ datetime: -1 });
     const total = entries.reduce((sum, e) => sum + e.amount, 0);
