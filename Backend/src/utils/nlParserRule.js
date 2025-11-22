@@ -1,15 +1,25 @@
 import * as chrono from "chrono-node";
 import { CATEGORIES } from "../constants/categories.js";
 
+
 export function detectCategory(query) {
-  const q = query.toLowerCase();
+  const q = query.toLowerCase().trim();
 
   for (const c of CATEGORIES) {
     if (q.includes(c)) return c;
   }
 
-  const match = q.match(/\b(on|for)\s+([a-zA-Z]+)\b/);
+  const match = q.match(/\b(on|for|in)\s+([a-zA-Z]+)/);
   if (match && match[2]) return match[2];
+
+  const words = q.split(/\s+/).map(w => w.trim());
+  const skip = ["how", "much", "did", "i", "spend", "where", "all", "this", "last", "week", "month", "day"];
+
+  for (const w of words) {
+    if (w.length > 2 && !skip.includes(w)) {
+      return w; 
+    }
+  }
 
   return null;
 }
@@ -28,7 +38,7 @@ export function parseQueryLocal(query, referenceDate = new Date()) {
     if (p.end) result.to = p.end.date();
 
     if (p.start && !p.end) {
-      const start = result.from;
+      const start = result.from ?? p.start.date();
       result.from = new Date(start.setHours(0, 0, 0, 0));
       result.to = new Date(start.setHours(23, 59, 59, 999));
     }
