@@ -25,7 +25,7 @@ function ExpenseForm() {
             setDatetime("")
             setDescription("")
             setCategory("grocery")
-
+            alert("added successfully")
 
         } catch (error) {
             console.error(error);
