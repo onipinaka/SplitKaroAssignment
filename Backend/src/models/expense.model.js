@@ -1,8 +1,12 @@
 import mongoose from "mongoose"
+import { CATEGORIES } from "../constants/categories";
 
 const ExpenseSchema = new mongoose.Schema({
     amount: { type: Number, required: true, min:0},
-    category: {type: String, required: true, trim:true},
+    category: {
+        type: String, required: true,
+        enum: CATEGORIES, trim:true
+    },
     datetime: {type:Date, required:true,},
     description: {type:String, required: true, default: ""},
     createdAt: {type: String, default: Date.now}
