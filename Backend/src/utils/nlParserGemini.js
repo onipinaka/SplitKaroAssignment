@@ -6,7 +6,6 @@ if (!GEMINI_API_KEY) {
   throw new Error("GEMINI_API_KEY is missing in environment variables");
 }
 
-// Create client (API key auto-loaded from env)
 const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
 export async function parseWithGemini(query, referenceDate = new Date()) {
@@ -39,7 +38,6 @@ Reference date: "${referenceDate.toISOString()}"
 
   const text = response.text();
 
-  // Extract JSON safely
   const jsonMatch = text.match(/\{[\s\S]*\}/);
   const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : text);
 
