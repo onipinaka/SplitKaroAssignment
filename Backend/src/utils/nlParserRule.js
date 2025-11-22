@@ -1,10 +1,11 @@
 import * as chrono from "chrono-node";
 import { CATEGORIES } from "../constants/categories.js";
 
-
+// Try to find a category in the user's query
 export function detectCategory(query) {
   const q = query.toLowerCase().trim();
 
+  // Check if query contains any known category
   for (const c of CATEGORIES) {
     if (q.includes(c)) return c;
   }
@@ -24,11 +25,13 @@ export function detectCategory(query) {
   return null;
 }
 
+// Main parser - extracts category and date range from natural language
 export function parseQueryLocal(query, referenceDate = new Date()) {
   const result = { category: null, from: null, to: null };
 
   result.category = detectCategory(query);
 
+  // Use chrono library to understand dates like "last week" or "yesterday"
   const parsed = chrono.parse(query, referenceDate);
 
   if (parsed.length) {
@@ -37,6 +40,7 @@ export function parseQueryLocal(query, referenceDate = new Date()) {
     if (p.start) result.from = p.start.date();
     if (p.end) result.to = p.end.date();
 
+    // If only one date found, treat it as a full day (00:00 to 23:59)
     if (p.start && !p.end) {
       const start = result.from ?? p.start.date();
       result.from = new Date(start.setHours(0, 0, 0, 0));

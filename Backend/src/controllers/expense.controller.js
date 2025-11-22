@@ -1,6 +1,7 @@
 import Expense from "../models/expense.model.js";
 import { expenseSchema } from "../validations/expense.validation.js";
 
+// Create a new expense entry
 export const createExpense = async (req, res) => {
     const { error, value } = expenseSchema.validate(req.body);
 
@@ -13,9 +14,11 @@ export const createExpense = async (req, res) => {
     res.status(201).json({ success: true, data: expense });
 };
 
+// Fetch expenses with optional filters
 export const getExpenses = async (req, res) => {
     const { category, from, to, limit = 100, skip = 0 } = req.query;
 
+    // Build filter object for MongoDB query
     const filter = {};
 
     if (category) filter.category = category;

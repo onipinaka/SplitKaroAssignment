@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { queryLocal } from "../api/api";
 
+// Display query results with metadata and expense list
 function ResultBox({ result }) {
     if (!result) return null;
 
@@ -67,6 +68,7 @@ function QueryBox() {
         setBusy(true);
         setResult(null);
         try {
+            // Send natural language query to backend
             const res = await queryLocal(queryText);
             setResult(res);
         } catch (err) {

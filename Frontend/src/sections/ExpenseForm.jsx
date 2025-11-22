@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { addExpense } from "../api/api";
 
 function ExpenseForm() {
-
+    // Form state
     const [amount,setAmount] = useState("")
     const [category,setCategory] = useState("grocery")
     const [description,setDescription] = useState("")
@@ -10,10 +10,10 @@ function ExpenseForm() {
     const [busy,setBusy] = useState(false)
 
     const submit = async (e)=>{
-
         e.preventDefault();
         setBusy(true);
         try {
+            // Submit expense to backend
             await addExpense({
                 amount: Number(amount),
                 category,
@@ -21,6 +21,7 @@ function ExpenseForm() {
                 description,
             });
 
+            // Reset form on success
             setAmount("")
             setDatetime("")
             setDescription("")

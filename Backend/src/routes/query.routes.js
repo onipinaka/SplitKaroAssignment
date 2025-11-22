@@ -5,6 +5,7 @@ import { parseQueryLocal } from "../utils/nlParserRule.js";
 
 const router = express.Router();
 
+// Natural language query endpoint - parses user queries like "food last week"
 router.post(
   "/local",
   asyncHandler(async (req, res) => {
@@ -12,10 +13,13 @@ router.post(
     if (!query)
       return res.status(400).json({ success: false, message: "query required" });
 
+    // Extract category and date range from natural language
     const { category, from, to } = parseQueryLocal(query);
 
+    // Build MongoDB filter from parsed query
     const filter = {};
 
+    // Search in both category and description fields
     if (category) {
       filter.$or = [
         { category: new RegExp(category, "i") },
