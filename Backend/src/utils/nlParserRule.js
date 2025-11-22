@@ -1,71 +1,125 @@
 import * as chrono from "chrono-node";
-import { CATEGORIES } from "../constants/categories.js";
+import { CATEGORIES, CATEGORY_ALIASES } from "../constants/categories.js";
 
-// Try to find a category in the user's query
+
+// These are query words, temporal expressions, and general terms
+
+const QUERY_STOPWORDS = new Set([
+  // Question words
+  "how", "much", "what", "when", "where", "which", "who", "why",
+  
+  // Verbs related to expenses
+  "did", "spend", "spent", "paid", "pay", "bought", "purchase", "purchased",
+  "cost", "have", "has", "had", "do", "does",
+  
+  // Temporal words
+  "this", "last", "next", "past", "today", "yesterday", "tomorrow",
+  "week", "month", "day", "year", "days", "months", "weeks", "years",
+  
+  // Prepositions and conjunctions
+  "on", "in", "at", "for", "from", "to", "between", "and", "or",
+  "about", "with", "without",
+  
+  // Articles and pronouns
+  "the", "a", "an", "my", "i", "me", "all",
+  
+  // Other query terms
+  "total", "show", "get", "find", "list", "give", "tell",
+  "expenses", "transactions", "money", "is", "was", "were", "are"
+]);
+
+
 export function detectCategory(query) {
-  const q = query.toLowerCase().trim();
+  const normalizedQuery = query.toLowerCase().trim();
 
-  // Check if query contains any known category
-  for (const c of CATEGORIES) {
-    // Use word boundary to match exact category words
-    const regex = new RegExp(`\\b${c}\\b`, 'i');
-    if (regex.test(q)) return c;
-  }
-
-  // Try to find category after prepositions like "on food" or "for travel"
-  const match = q.match(/\b(on|for|in|about)\s+([a-zA-Z]+)/);
-  if (match && match[2] && CATEGORIES.includes(match[2])) {
-    return match[2];
-  }
-
-  // Words to skip when trying to guess category from query
-  const skipWords = [
-    "how", "much", "did", "i", "spend", "spent", "where", "all", 
-    "this", "last", "next", "past", "week", "month", "day", "year",
-    "today", "yesterday", "tomorrow", "between", "and", "from", "to",
-    "what", "when", "total", "my", "the", "a", "an", "is", "was",
-    "have", "has", "had", "do", "does", "show", "get", "find",
-    "list", "give", "tell", "me", "expenses", "transactions", "money",
-    "cost", "paid", "pay", "bought", "purchase", "purchased"
-  ];
-
-  // Look for any remaining word that could be a category
-  const words = q.split(/\s+/).map(w => w.trim().toLowerCase());
-
-  for (const w of words) {
-    if (w.length > 2 && !skipWords.includes(w)) {
-      // Only return if it's not a number or date-like word
-      if (!/^\d+$/.test(w) && !w.match(/jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec/i)) {
-        return w;
-      }
+  // Priority 1: Check exact category matches with word boundaries
+  for (const category of CATEGORIES) {
+    const regex = new RegExp(`\\b${category}\\b`, 'i');
+    if (regex.test(normalizedQuery)) {
+      return category;
     }
+  }
+
+  // Priority 2: Check category aliases (plurals and variations)
+  for (const [alias, baseCategory] of Object.entries(CATEGORY_ALIASES)) {
+    const regex = new RegExp(`\\b${alias}\\b`, 'i');
+    if (regex.test(normalizedQuery)) {
+      return baseCategory;
+    }
+  }
+
+  // Priority 3: Extract category after prepositions ("on groceries", "for rent")
+  const prepositionMatch = normalizedQuery.match(/\b(on|for|in|about)\s+([a-zA-Z]+)/i);
+  if (prepositionMatch) {
+    const candidateWord = prepositionMatch[2].toLowerCase();
+    
+    if (CATEGORIES.includes(candidateWord)) {
+      return candidateWord;
+    }
+    
+    if (CATEGORY_ALIASES[candidateWord]) {
+      return CATEGORY_ALIASES[candidateWord];
+    }
+  }
+
+  // Priority 4: Find any meaningful word that could be a category
+  const words = normalizedQuery.split(/\s+/);
+  
+  for (const word of words) {
+    const cleanWord = word.trim().toLowerCase();
+    
+    // Skip short words, stopwords, numbers, and month names
+    if (cleanWord.length <= 2 || 
+        QUERY_STOPWORDS.has(cleanWord) ||
+        /^\d+$/.test(cleanWord) ||
+        /^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i.test(cleanWord)) {
+      continue;
+    }
+    
+    // Return first meaningful word found
+    return cleanWord;
   }
 
   return null;
 }
 
-// Main parser - extracts category and date range from natural language
+
 export function parseQueryLocal(query, referenceDate = new Date()) {
   const result = { category: null, from: null, to: null };
 
+  // Extract category from query
   result.category = detectCategory(query);
 
-  // Use chrono library to understand dates like "last week" or "yesterday"
-  const parsed = chrono.parse(query, referenceDate);
+  // Parse temporal expressions using chrono-node
+  const parsedDates = chrono.parse(query, referenceDate, { forwardDate: false });
 
-  if (parsed.length) {
-    const p = parsed[0];
+  if (parsedDates.length > 0) {
+    const dateResult = parsedDates[0];
 
-    if (p.start) result.from = p.start.date();
-    if (p.end) result.to = p.end.date();
+    // Extract start date
+    if (dateResult.start) {
+      result.from = dateResult.start.date();
+    }
 
-    // If only one date found, treat it as a full day (00:00 to 23:59)
-    if (p.start && !p.end) {
-      const start = result.from ?? p.start.date();
-      result.from = new Date(start.setHours(0, 0, 0, 0));
-      result.to = new Date(start.setHours(23, 59, 59, 999));
+    // Extract end date 
+    if (dateResult.end) {
+      result.to = dateResult.end.date();
+    } 
+    // If single date/time, expand to full day (00:00:00 to 23:59:59)
+    else if (dateResult.start) {
+      const startDate = new Date(result.from);
+      
+      // Set to beginning of day
+      result.from = new Date(startDate);
+      result.from.setHours(0, 0, 0, 0);
+      
+      // Set to end of day
+      result.to = new Date(startDate);
+      result.to.setHours(23, 59, 59, 999);
     }
   }
 
   return result;
 }
+
+
