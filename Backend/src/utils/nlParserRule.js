@@ -7,18 +7,37 @@ export function detectCategory(query) {
 
   // Check if query contains any known category
   for (const c of CATEGORIES) {
-    if (q.includes(c)) return c;
+    // Use word boundary to match exact category words
+    const regex = new RegExp(`\\b${c}\\b`, 'i');
+    if (regex.test(q)) return c;
   }
 
-  const match = q.match(/\b(on|for|in)\s+([a-zA-Z]+)/);
-  if (match && match[2]) return match[2];
+  // Try to find category after prepositions like "on food" or "for travel"
+  const match = q.match(/\b(on|for|in|about)\s+([a-zA-Z]+)/);
+  if (match && match[2] && CATEGORIES.includes(match[2])) {
+    return match[2];
+  }
 
-  const words = q.split(/\s+/).map(w => w.trim());
-  const skip = ["how", "much", "did", "i", "spend", "where", "all", "this", "last", "week", "month", "day"];
+  // Words to skip when trying to guess category from query
+  const skipWords = [
+    "how", "much", "did", "i", "spend", "spent", "where", "all", 
+    "this", "last", "next", "past", "week", "month", "day", "year",
+    "today", "yesterday", "tomorrow", "between", "and", "from", "to",
+    "what", "when", "total", "my", "the", "a", "an", "is", "was",
+    "have", "has", "had", "do", "does", "show", "get", "find",
+    "list", "give", "tell", "me", "expenses", "transactions", "money",
+    "cost", "paid", "pay", "bought", "purchase", "purchased"
+  ];
+
+  // Look for any remaining word that could be a category
+  const words = q.split(/\s+/).map(w => w.trim().toLowerCase());
 
   for (const w of words) {
-    if (w.length > 2 && !skip.includes(w)) {
-      return w; 
+    if (w.length > 2 && !skipWords.includes(w)) {
+      // Only return if it's not a number or date-like word
+      if (!/^\d+$/.test(w) && !w.match(/jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec/i)) {
+        return w;
+      }
     }
   }
 
