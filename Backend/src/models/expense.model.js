@@ -1,5 +1,5 @@
 import mongoose from "mongoose"
-import { CATEGORIES } from "../constants/categories";
+import { CATEGORIES } from "../constants/categories.js";
 
 const ExpenseSchema = new mongoose.Schema({
     amount: { type: Number, required: true, min:0},

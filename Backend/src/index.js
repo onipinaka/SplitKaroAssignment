@@ -26,7 +26,7 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 4000;
 const MONGODB_URI =
   process.env.MONGODB_URI || "mongodb://localhost:27017/splitkaro";
-
+console.log(MONGODB_URI)
 connectDB(MONGODB_URI).then(() => {
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 });

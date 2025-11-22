@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { queryGemini, queryLocal } from "../api/api";
 
 function QueryBox() {
     const [queryLocalText, setQueryLocalText] = useState("");

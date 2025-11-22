@@ -1,4 +1,4 @@
-import chrono from "chrono-node";
+import * as chrono from "chrono-node";
 import { CATEGORIES } from "../constants/categories.js";
 
 export function detectCategory(query) {

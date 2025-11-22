@@ -1,9 +1,9 @@
 import Joi from "joi";
-import { CATEGORIES } from "../constants/categories";
+import { CATEGORIES } from "../constants/categories.js";
 
-const expenseSchema = Joi.object({
-    amount: Joi.number().positive().required(),
-    description: Joi.string().allow("").max(1000),
-    category: Joi.string().valid(...CATEGORIES).required(),
-    datetime: Joi.date().required()
-})
+export const expenseSchema = Joi.object({
+  amount: Joi.number().positive().required(),
+  category: Joi.string().valid(...CATEGORIES).required(),
+  datetime: Joi.date().required(),
+  description: Joi.string().allow("").max(1000)
+});
