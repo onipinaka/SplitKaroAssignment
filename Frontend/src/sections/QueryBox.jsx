@@ -4,7 +4,29 @@ import { queryLocal } from "../api/api";
 // Format date to local date string (avoids timezone issues)
 function formatLocalDate(dateString) {
     const date = new Date(dateString);
-    return date.toLocaleString('en-IN', {
+    if (Number.isNaN(date.getTime())) return dateString;
+
+    const isUtcStartOfDay =
+        date.getUTCHours() === 0 &&
+        date.getUTCMinutes() === 0 &&
+        date.getUTCSeconds() === 0 &&
+        date.getUTCMilliseconds() === 0;
+
+    const isUtcEndOfDay =
+        date.getUTCHours() === 23 &&
+        date.getUTCMinutes() === 59 &&
+        date.getUTCSeconds() === 59 &&
+        date.getUTCMilliseconds() >= 999;
+
+    let displayDate = date;
+
+    if (isUtcStartOfDay || isUtcEndOfDay) {
+        displayDate = new Date(
+            date.getTime() + date.getTimezoneOffset() * 60000
+        );
+    }
+
+    return displayDate.toLocaleString('en-IN', {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
