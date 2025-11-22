@@ -63,8 +63,7 @@ function parseCustomRanges(query, refDate) {
   const daysMatch = lower.match(/(?:last|past)\s+(\d+)\s+days?/);
   if (daysMatch) {
     const n = parseInt(daysMatch[1], 10);
-    const end = new Date(refDate);
-    end.setHours(23, 59, 59, 999);
+    const end = new Date(refDate.getFullYear(), refDate.getMonth(), refDate.getDate(), 23, 59, 59, 999);
     const start = new Date(end);
     start.setDate(start.getDate() - n + 1);
     start.setHours(0, 0, 0, 0);
@@ -75,8 +74,7 @@ function parseCustomRanges(query, refDate) {
   const weeksMatch = lower.match(/(?:last|past)\s+(\d+)\s+weeks?/);
   if (weeksMatch) {
     const n = parseInt(weeksMatch[1], 10);
-    const end = new Date(refDate);
-    end.setHours(23, 59, 59, 999);
+    const end = new Date(refDate.getFullYear(), refDate.getMonth(), refDate.getDate(), 23, 59, 59, 999);
     const start = new Date(end);
     start.setDate(start.getDate() - (n * 7) + 1);
     start.setHours(0, 0, 0, 0);
@@ -87,8 +85,7 @@ function parseCustomRanges(query, refDate) {
   const monthsMatch = lower.match(/(?:last|past)\s+(\d+)\s+months?/);
   if (monthsMatch) {
     const n = parseInt(monthsMatch[1], 10);
-    const end = new Date(refDate);
-    end.setHours(23, 59, 59, 999);
+    const end = new Date(refDate.getFullYear(), refDate.getMonth(), refDate.getDate(), 23, 59, 59, 999);
     const start = new Date(end);
     start.setMonth(start.getMonth() - n + 1);
     start.setDate(1);
@@ -98,50 +95,31 @@ function parseCustomRanges(query, refDate) {
 
   // "this month"
   if (lower.includes('this month')) {
-    const start = new Date(refDate);
-    start.setDate(1);
-    start.setHours(0, 0, 0, 0);
-    const end = new Date(refDate);
-    end.setMonth(end.getMonth() + 1);
-    end.setDate(0);
-    end.setHours(23, 59, 59, 999);
+    const start = new Date(refDate.getFullYear(), refDate.getMonth(), 1, 0, 0, 0, 0);
+    const end = new Date(refDate.getFullYear(), refDate.getMonth() + 1, 0, 23, 59, 59, 999);
     return { from: start, to: end };
   }
 
   // "this week"
   if (lower.includes('this week')) {
-    const start = new Date(refDate);
-    const day = start.getDay();
-    start.setDate(start.getDate() - day);
-    start.setHours(0, 0, 0, 0);
-    const end = new Date(start);
-    end.setDate(end.getDate() + 6);
-    end.setHours(23, 59, 59, 999);
+    const day = refDate.getDay();
+    const start = new Date(refDate.getFullYear(), refDate.getMonth(), refDate.getDate() - day, 0, 0, 0, 0);
+    const end = new Date(refDate.getFullYear(), refDate.getMonth(), refDate.getDate() - day + 6, 23, 59, 59, 999);
     return { from: start, to: end };
   }
 
   // "last month"
   if (lower.includes('last month')) {
-    const start = new Date(refDate);
-    start.setMonth(start.getMonth() - 1);
-    start.setDate(1);
-    start.setHours(0, 0, 0, 0);
-    const end = new Date(start);
-    end.setMonth(end.getMonth() + 1);
-    end.setDate(0);
-    end.setHours(23, 59, 59, 999);
+    const start = new Date(refDate.getFullYear(), refDate.getMonth() - 1, 1, 0, 0, 0, 0);
+    const end = new Date(refDate.getFullYear(), refDate.getMonth(), 0, 23, 59, 59, 999);
     return { from: start, to: end };
   }
 
   // "last week"
   if (lower.includes('last week')) {
-    const end = new Date(refDate);
-    const day = end.getDay();
-    end.setDate(end.getDate() - day - 1);
-    end.setHours(23, 59, 59, 999);
-    const start = new Date(end);
-    start.setDate(start.getDate() - 6);
-    start.setHours(0, 0, 0, 0);
+    const day = refDate.getDay();
+    const start = new Date(refDate.getFullYear(), refDate.getMonth(), refDate.getDate() - day - 7, 0, 0, 0, 0);
+    const end = new Date(refDate.getFullYear(), refDate.getMonth(), refDate.getDate() - day - 1, 23, 59, 59, 999);
     return { from: start, to: end };
   }
 
