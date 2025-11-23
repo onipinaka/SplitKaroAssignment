@@ -40,38 +40,38 @@ function ExpenseForm() {
 
     return (
         <>
-            <div>
+            <div className="flex justify-center items-center md:flex-row flex-col">
                 <p>Add Expense</p>
                 <form action="" onSubmit={submit}>
                     <input
-                        className=" border p-2 rounded"
+                        className=" border p-2 my-2 mx-2  rounded"
                         placeholder="Amount"
                         type="number"
                         value={amount}
                         required
                         onChange={(e)=>(setAmount(e.target.value))}
                     />
-                    <select className="rounded border-2 h-12 w-40" name="category" value={category} id="category" onChange={(e)=>(setCategory(e.target.value))}>
+                    <select className="rounded border-2 mx-2  my-2  h-12 w-40" name="category" value={category} id="category" onChange={(e)=>(setCategory(e.target.value))}>
                         <option value="grocery">grocery</option>
                         <option value="food">food</option>
                         <option value="bill">bill</option>
                         <option value="rent">rent</option>
                     </select>
                     <input
-                        className=" border p-2 rounded"
+                        className=" border p-2 my-2 mx-2   rounded"
                         type="datetime-local"
                         value={datetime}
                         onChange={(e)=>(setDatetime(e.target.value))}
                     />
                     <input
-                        className=" border p-2 rounded"
+                        className=" border p-2 my-2 mx-2   rounded"
                         placeholder="Description"
                         value={description}
                         onChange={(e)=>(setDescription(e.target.value))}
                         
                     />
                     <button
-                        className="bg-blue-600 text-white px-3 py-2 rounded disabled:opacity-50" disabled={busy}
+                        className="bg-blue-600 mx-2  text-white px-3 py-2 rounded disabled:opacity-50" disabled={busy}
                     >
                         Add Expense
                     </button>
