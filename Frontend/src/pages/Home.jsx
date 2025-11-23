@@ -4,7 +4,7 @@ import QueryBox from '../sections/QueryBox'
 
 function Home() {
   return (
-    <div className='flex flex-col justify-center items-center w-screen h-screen lg:w-full w-[80vw]'>
+    <div className='flex flex-col justify-center items-center  h-screen lg:w-screen w-[80vw]'>
         <p>SplitKaro</p>
         <div>
             <ExpenseForm/>
